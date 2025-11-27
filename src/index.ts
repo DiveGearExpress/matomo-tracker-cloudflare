@@ -1,0 +1,73 @@
+import { getConfig } from './config.js';
+import { createLogger } from './logger.js';
+import { buildMatomoPayload } from './matomo.js';
+import { sendMatomoHit } from './http.js';
+import type { Env, MatomoConfig, WorkerContext } from './types.js';
+
+const trackRequest = async (
+  request: Request,
+  response: Response,
+  durationMs: number,
+  config: MatomoConfig
+) => {
+  const log = createLogger(config.logLevel);
+  try {
+    const payload = buildMatomoPayload(
+      request,
+      response,
+      durationMs,
+      config,
+      new Date(Date.now() - durationMs)
+    );
+    if (!payload) {
+      log.debug('Tracking skipped (user agent not allowed)');
+      return;
+    }
+    await sendMatomoHit(
+      config.matomoUrl,
+      payload,
+      config.matomoTimeoutMs,
+      config.logLevel,
+      config.matomoTokenAuth
+    );
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    log.warn('Tracking failed', { error: message });
+  }
+};
+
+export default {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx: WorkerContext
+  ): Promise<Response> {
+    const start = Date.now();
+    let config: MatomoConfig;
+    try {
+      config = getConfig(env);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return new Response(`Configuration error: ${message}`, { status: 500 });
+    }
+    const log = createLogger(config.logLevel);
+
+    try {
+      const response = await fetch(request);
+      const durationMs = Date.now() - start;
+      ctx.waitUntil(
+        trackRequest(request, response.clone(), durationMs, config)
+      );
+      return response;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      log.error('Origin request failed', { error: message });
+      const fallback = new Response('Bad Gateway', { status: 502 });
+      const durationMs = Date.now() - start;
+      ctx.waitUntil(
+        trackRequest(request, fallback.clone(), durationMs, config)
+      );
+      return fallback;
+    }
+  }
+};

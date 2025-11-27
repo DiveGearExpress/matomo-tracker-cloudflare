@@ -1,0 +1,8 @@
+MATOMO_URL=https://analytics.example.com
+MATOMO_SITE_ID=1
+MATOMO_TIMEOUT_MS=5000
+LOG_LEVEL=debug
+USER_AGENT_ALLOWLIST_REGEX=(?:ChatGPT-User|MistralAI-User|Gemini-Deep-Research|Claude-User|Perplexity-User|Google-NotebookLM|Devin)
+DOCUMENT_REGEX=^[^?]+\.(?:pdf|docx?|xlsx?|pptx?|csv|json|txt|xml|epub|mobi|azw3|mp3|mp4|mpe?g|webm|mov|avi|ogg|wav|flac|zip|gz|gzip|tgz|tar|bz2|tbz|7z|rar|dmg|exe|msi|apk|jar|md5|sig)(?:\?|$)
+# MATOMO_TOKEN_AUTH is optional; set via wrangler secret in production. For local dev only, you may add:
+# MATOMO_TOKEN_AUTH=your_token_here
