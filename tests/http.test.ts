@@ -71,6 +71,23 @@ describe('sendMatomoHit', () => {
     expect(options.body).toContain('"requests"');
   });
 
+  it('logs debug when response body is empty', async () => {
+    const fetchMock = vi
+      .fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>()
+      .mockResolvedValue(new Response(null, { status: 204 }));
+
+    await sendMatomoHit(
+      'https://analytics.example.com',
+      basePayload,
+      1000,
+      'debug',
+      undefined,
+      fetchMock
+    );
+
+    expect(spies.debug).toHaveBeenCalled();
+  });
+
   it('throws on non-ok response', async () => {
     const fetchMock = vi
       .fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>()
@@ -109,5 +126,9 @@ describe('sendMatomoHit', () => {
         fetchMock
       )
     ).rejects.toThrow(/aborted/);
+    expect(spies.error).toHaveBeenCalledWith(
+      'Matomo send failed',
+      expect.objectContaining({ error: 'aborted' })
+    );
   });
 });

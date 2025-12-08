@@ -73,6 +73,45 @@ describe('Worker fetch handler', () => {
     expect(sendSpy).toHaveBeenCalledTimes(1);
   });
 
+  it('skips tracking when user agent not allowed', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('origin', { status: 200 }));
+    global.fetch = fetchMock as unknown as typeof fetch;
+    const sendSpy = vi.spyOn(http, 'sendMatomoHit').mockResolvedValue(undefined);
+    const response = await worker.fetch(
+      new Request('https://example.com/path', {
+        headers: { 'user-agent': 'OtherUA' }
+      }),
+      { ...env, USER_AGENT_ALLOWLIST_REGEX: 'AllowedUA' },
+      { waitUntil }
+    );
+    expect(response.status).toBe(200);
+    await waitUntil.mock.calls[0][0];
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
+  it('logs warning when tracking fails', async () => {
+    const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const fetchMock = vi.fn().mockResolvedValue(new Response('origin', { status: 200 }));
+    global.fetch = fetchMock as unknown as typeof fetch;
+    vi.spyOn(http, 'sendMatomoHit').mockRejectedValue(new Error('track fail'));
+
+    const response = await worker.fetch(
+      new Request('https://example.com/path', {
+        headers: { 'user-agent': 'AgentX' }
+      }),
+      env,
+      { waitUntil }
+    );
+
+    expect(response.status).toBe(200);
+    await waitUntil.mock.calls[0][0];
+    expect(consoleWarn).toHaveBeenCalledWith(
+      'Tracking failed',
+      expect.objectContaining({ error: 'track fail' })
+    );
+    consoleWarn.mockRestore();
+  });
+
   it('returns 500 when config is invalid', async () => {
     const response = await worker.fetch(
       new Request('https://example.com/path'),

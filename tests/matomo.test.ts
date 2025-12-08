@@ -87,4 +87,16 @@ describe('buildMatomoPayload (Worker)', () => {
     );
     expect(payload?.ua).toBe('');
   });
+
+  it('throws when matomoSiteId is missing in config', () => {
+    const response = new Response('ok', { status: 200 });
+    expect(() =>
+      buildMatomoPayload(
+        new Request('https://example.com'),
+        response,
+        10,
+        {} as never
+      )
+    ).toThrow(/matomoSiteId is required/);
+  });
 });

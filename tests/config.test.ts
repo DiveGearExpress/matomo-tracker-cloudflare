@@ -65,6 +65,12 @@ describe('getConfig', () => {
     );
   });
 
+  it('throws when MATOMO_SITE_ID is empty string', () => {
+    expect(() =>
+      getConfig({ MATOMO_URL: baseEnv.MATOMO_URL, MATOMO_SITE_ID: '' })
+    ).toThrow(/MATOMO_SITE_ID is required/);
+  });
+
   it('throws when numeric fields are not integers', () => {
     expect(() => getConfig({ ...baseEnv, MATOMO_SITE_ID: 'abc' })).toThrow(
       /Expected integer value/
