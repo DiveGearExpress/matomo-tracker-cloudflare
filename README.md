@@ -40,6 +40,31 @@ npx wrangler dev --local
 
 Wrangler will use `wrangler.toml` and bundle the TypeScript entry automatically. You can point routes to your origin per your zone settings; the Worker simply proxies the request.
 
+### Local origin testing via tunnel
+
+To exercise the Worker against a real local site without deploying:
+
+1. Start your static/local app (example: `npm run dev` or `python -m http.server 3000`).
+2. Copy `.dev.vars.example` to `.dev.vars` and set local-only values for the Matomo vars you need during `wrangler dev --local` runs.
+3. Expose it over HTTPS with Cloudflare Tunnel (or similar):
+   - `cloudflared tunnel --url http://localhost:3000`
+   - Note the printed URL (e.g., `https://abcd1234.trycloudflare.com`).
+4. Run Wrangler in remote mode pointing at that host so Worker fetches hit your local origin through the tunnel:
+   - `npx wrangler dev --remote --host abcd1234.trycloudflare.com`
+5. Visit `https://abcd1234.trycloudflare.com/...` to see origin responses via the Worker; Matomo hits are sent asynchronously via `waitUntil`.
+
+Alternative tunnel tools: any HTTPS tunnel works (e.g., `npx localtunnel --port 3000` or `ngrok http 3000`); take the public URL they provide and pass its host to `--host` with `wrangler dev --remote`.
+
+### Local-only proxy mode (no tunnel)
+
+If you prefer to keep everything local without a public tunnel, use the dev-only shim:
+
+1. Copy `.dev.vars.example` to `.dev.vars` (optional for local dev vars).
+2. Start your local origin (e.g., `http://localhost:3000`).
+3. Run `npx wrangler dev --local --config wrangler.dev.toml`.
+
+`wrangler.dev.toml` points to `scripts/dev-local.ts`, which rewrites requests to `DEV_ORIGIN_OVERRIDE` (defaults to `http://localhost:3000`). You can override with `DEV_ORIGIN_OVERRIDE=http://localhost:4000 npx wrangler dev --local --config wrangler.dev.toml`. This keeps production code/config untouched while letting you proxy locally.
+
 ## Deploy (manual outline)
 
 1. Ensure `wrangler.toml` values are correct for your zone/route and Matomo URL.
