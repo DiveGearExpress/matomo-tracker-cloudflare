@@ -20,11 +20,15 @@ describe('utils', () => {
   });
 
   it('parses content length safely', () => {
-    const response = new Response('ok', { headers: { 'content-length': '123' } });
+    const response = new Response('ok', {
+      headers: { 'content-length': '123' }
+    });
     expect(getContentLength(response)).toBe(123);
     const none = new Response('ok');
     expect(getContentLength(none)).toBeUndefined();
-    const invalid = new Response('ok', { headers: { 'content-length': 'abc' } });
+    const invalid = new Response('ok', {
+      headers: { 'content-length': 'abc' }
+    });
     expect(getContentLength(invalid)).toBeUndefined();
   });
 });

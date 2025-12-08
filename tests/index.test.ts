@@ -74,9 +74,13 @@ describe('Worker fetch handler', () => {
   });
 
   it('skips tracking when user agent not allowed', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response('origin', { status: 200 }));
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response('origin', { status: 200 }));
     global.fetch = fetchMock as unknown as typeof fetch;
-    const sendSpy = vi.spyOn(http, 'sendMatomoHit').mockResolvedValue(undefined);
+    const sendSpy = vi
+      .spyOn(http, 'sendMatomoHit')
+      .mockResolvedValue(undefined);
     const response = await worker.fetch(
       new Request('https://example.com/path', {
         headers: { 'user-agent': 'OtherUA' }
@@ -91,7 +95,9 @@ describe('Worker fetch handler', () => {
 
   it('logs warning when tracking fails', async () => {
     const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const fetchMock = vi.fn().mockResolvedValue(new Response('origin', { status: 200 }));
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response('origin', { status: 200 }));
     global.fetch = fetchMock as unknown as typeof fetch;
     vi.spyOn(http, 'sendMatomoHit').mockRejectedValue(new Error('track fail'));
 

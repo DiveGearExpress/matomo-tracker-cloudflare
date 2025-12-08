@@ -55,18 +55,14 @@ export default {
     try {
       const response = await fetch(request);
       const durationMs = Date.now() - start;
-      ctx.waitUntil(
-        trackRequest(request, response.clone(), durationMs, config)
-      );
+      ctx.waitUntil(trackRequest(request, response, durationMs, config));
       return response;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       log.error('Origin request failed', { error: message });
       const fallback = new Response('Bad Gateway', { status: 502 });
       const durationMs = Date.now() - start;
-      ctx.waitUntil(
-        trackRequest(request, fallback.clone(), durationMs, config)
-      );
+      ctx.waitUntil(trackRequest(request, fallback, durationMs, config));
       return fallback;
     }
   }
