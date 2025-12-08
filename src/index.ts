@@ -42,7 +42,6 @@ export default {
     env: Env,
     ctx: WorkerContext
   ): Promise<Response> {
-    const start = Date.now();
     let config: MatomoConfig;
     try {
       config = getConfig(env);
@@ -51,6 +50,7 @@ export default {
       return new Response(`Configuration error: ${message}`, { status: 500 });
     }
     const log = createLogger(config.logLevel);
+    const start = Date.now();
 
     try {
       const response = await fetch(request);
