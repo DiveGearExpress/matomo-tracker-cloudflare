@@ -1,0 +1,8 @@
+name = "matomo-tracker-worker-dev"
+main = "scripts/dev-local.ts"
+compatibility_date = "2024-12-08"
+compatibility_flags = ["nodejs_compat"]
+
+[dev]
+port = 8787
+local_protocol = "https"

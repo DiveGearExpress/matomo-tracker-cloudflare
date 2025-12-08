@@ -63,7 +63,7 @@ If you prefer to keep everything local without a public tunnel, use the dev-only
 2. Start your local origin (e.g., `http://localhost:3000`).
 3. Run `npx wrangler dev --local --config wrangler.dev.toml`.
 
-`wrangler.dev.toml` points to `scripts/dev-local.ts`, which rewrites requests to `DEV_ORIGIN_OVERRIDE` (defaults to `http://localhost:3000`). You can override with `DEV_ORIGIN_OVERRIDE=http://localhost:4000 npx wrangler dev --local --config wrangler.dev.toml`. This keeps production code/config untouched while letting you proxy locally.
+`wrangler.dev.toml` points to `scripts/dev-local.ts`, which rewrites requests to `DEV_ORIGIN_OVERRIDE` (defaults to `http://localhost:3000`). Override by passing it as a var so Wrangler exposes it to the worker: `npx wrangler dev --local --config wrangler.dev.toml --var DEV_ORIGIN_OVERRIDE:'http://localhost:4000'`. This keeps production code/config untouched while letting you proxy locally.
 
 ## Deploy (manual outline)
 
