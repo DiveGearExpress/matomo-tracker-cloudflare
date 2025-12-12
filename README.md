@@ -13,7 +13,6 @@ Cloudflare Worker (TypeScript, Node 24 tooling) that sits inline on your zone, p
 - `MATOMO_URL` (required): Base Matomo URL, e.g. `https://analytics.example.com`.
 - `MATOMO_SITE_ID` (required): Matomo site ID (integer).
 - `MATOMO_TIMEOUT_MS` (optional, default `5000`): HTTP timeout in ms for Matomo calls.
-- `MATOMO_TOKEN_AUTH` (optional, recommended): Sent as `Authorization: Bearer <token>`.
 - `DOCUMENT_REGEX` (optional): Case-insensitive regex to detect downloads; matching URLs add `download=<url>` to Matomo payloads. Defaults to common document/media/archive extensions.
 - `LOG_LEVEL` (optional, default `warn`): `silent|error|warn|info|debug`.
 - `USER_AGENT_ALLOWLIST_REGEX` (optional): Case-insensitive regex to permit user agents; non-matching entries are skipped. Defaults to an allowlist for `ChatGPT-User|MistralAI-User|Gemini-Deep-Research|Claude-User|Perplexity-User|Google-NotebookLM|Devin`.
@@ -29,7 +28,6 @@ Wrangler bundles the TypeScript entry for you; no manual build is required for `
 - Install Wrangler (e.g., `npm install -g wrangler` or `npx wrangler --version` to use npx).
 - Copy `.dev.vars.example` to `.dev.vars` and set your local values (these are only for `wrangler dev --local`):
   - `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_TIMEOUT_MS`, `LOG_LEVEL`, `USER_AGENT_ALLOWLIST_REGEX`, `DOCUMENT_REGEX`
-  - For `MATOMO_TOKEN_AUTH`, prefer `wrangler secret put MATOMO_TOKEN_AUTH` (or set in `.dev.vars` only for local testing).
 - Start local dev (serves on http://localhost:8787 by default):
 
 ```sh
@@ -69,7 +67,6 @@ If you prefer to keep everything local without a public tunnel, use the dev-only
 
 1. Ensure `wrangler.toml` values are correct for your zone/route and Matomo URL.
 2. Set production vars/secrets:
-   - `wrangler secret put MATOMO_TOKEN_AUTH` (if used)
    - Adjust or set vars in `wrangler.toml` or via `wrangler deploy --var KEY=VALUE`
 3. Deploy:
    - `npx wrangler deploy`
@@ -82,7 +79,7 @@ The Worker simply calls `fetch(request)` to reach your origin and separately pos
 - Measures server time (`pf_srv` in seconds), status, and response bytes from `Content-Length` when present.
 - Builds a Matomo payload with `idsite`, `rec:1`, `recMode:1`, `url`, `source:'Cloudflare'`, `cdt` (UTC `YYYY-MM-DD HH:mm:ss`), and `ua`.
 - Detects downloads via `DOCUMENT_REGEX` and user-agent allowlist via `USER_AGENT_ALLOWLIST_REGEX`; disallowed UAs are skipped.
-- Sends a single Matomo hit asynchronously via `waitUntil` to `/matomo.php` with optional bearer auth and timeout.
+- Sends a single Matomo hit asynchronously via `waitUntil` to `/matomo.php` (standard tracking API) with timeout.
 
 ## Logging
 

@@ -27,8 +27,7 @@ const trackRequest = async (
       config.matomoUrl,
       payload,
       config.matomoTimeoutMs,
-      config.logLevel,
-      config.matomoTokenAuth
+      config.logLevel
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

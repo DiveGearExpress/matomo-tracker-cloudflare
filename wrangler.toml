@@ -17,5 +17,3 @@ MATOMO_TIMEOUT_MS = "5000"
 LOG_LEVEL = "warn"
 USER_AGENT_ALLOWLIST_REGEX = ""
 DOCUMENT_REGEX = ""
-
-# MATOMO_TOKEN_AUTH should be set via `wrangler secret put MATOMO_TOKEN_AUTH`

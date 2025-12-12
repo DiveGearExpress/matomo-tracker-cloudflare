@@ -10,7 +10,6 @@ export interface Logger {
 export interface Env {
   MATOMO_URL: string;
   MATOMO_SITE_ID: string;
-  MATOMO_TOKEN_AUTH?: string;
   MATOMO_TIMEOUT_MS?: string;
   LOG_LEVEL?: LogLevel;
   USER_AGENT_ALLOWLIST_REGEX?: string;
@@ -21,7 +20,6 @@ export interface Env {
 export interface MatomoConfig {
   matomoUrl: string;
   matomoSiteId: number;
-  matomoTokenAuth?: string;
   matomoTimeoutMs: number;
   logLevel: LogLevel;
   userAgentAllowlistRegex?: RegExp;

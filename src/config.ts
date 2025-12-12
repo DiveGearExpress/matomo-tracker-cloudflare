@@ -44,7 +44,6 @@ export function getConfig(
   }
 
   const matomoTimeoutMs = toInt(env.MATOMO_TIMEOUT_MS, 5000) ?? 5000;
-  const matomoTokenAuth = env.MATOMO_TOKEN_AUTH || undefined;
   const logLevel = (env.LOG_LEVEL || 'warn').toLowerCase() as LogLevel;
   const allowlistPattern =
     env.USER_AGENT_ALLOWLIST_REGEX || defaultAllowlistPattern;
@@ -67,7 +66,6 @@ export function getConfig(
   return {
     matomoUrl,
     matomoSiteId,
-    matomoTokenAuth,
     matomoTimeoutMs,
     logLevel,
     userAgentAllowlistRegex,

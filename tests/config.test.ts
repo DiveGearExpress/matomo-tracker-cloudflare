@@ -12,7 +12,6 @@ describe('getConfig', () => {
     expect(config).toMatchObject({
       matomoUrl: baseEnv.MATOMO_URL,
       matomoSiteId: 42,
-      matomoTokenAuth: undefined,
       matomoTimeoutMs: 5000,
       logLevel: 'warn'
     });
@@ -27,7 +26,6 @@ describe('getConfig', () => {
   it('uses optional overrides', () => {
     const config = getConfig({
       ...baseEnv,
-      MATOMO_TOKEN_AUTH: 'secret',
       MATOMO_TIMEOUT_MS: '8000',
       LOG_LEVEL: 'debug',
       USER_AGENT_ALLOWLIST_REGEX: 'CustomBot',
@@ -36,7 +34,6 @@ describe('getConfig', () => {
     expect(config).toMatchObject({
       matomoUrl: baseEnv.MATOMO_URL,
       matomoSiteId: 42,
-      matomoTokenAuth: 'secret',
       matomoTimeoutMs: 8000,
       logLevel: 'debug'
     });
