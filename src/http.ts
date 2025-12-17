@@ -25,7 +25,18 @@ export async function sendMatomoHit(
   ) => Promise<Response> = fetch
 ): Promise<void> {
   const query = buildMatomoRequestPayload(payload);
-  const url = new URL(`/matomo.php${query}`, matomoUrl);
+  const baseUrl = new URL(matomoUrl);
+  const basePath = baseUrl.pathname || '/';
+  const strippedBasePath = /\/matomo\.php$/i.test(basePath)
+    ? basePath.replace(/\/matomo\.php$/i, '/')
+    : basePath;
+  const normalizedBasePath = strippedBasePath.endsWith('/')
+    ? strippedBasePath
+    : `${strippedBasePath}/`;
+  const url = new URL(baseUrl.toString());
+  url.pathname = `${normalizedBasePath}matomo.php`;
+  url.search = query;
+  url.hash = '';
   const log = createLogger(logLevel);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);

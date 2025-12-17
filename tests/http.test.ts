@@ -39,32 +39,50 @@ describe('sendMatomoHit', () => {
     vi.restoreAllMocks();
   });
 
-  it('sends a single hit via tracking API and logs debug on success', async () => {
-    const fetchMock = vi
-      .fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>()
-      .mockResolvedValue(new Response(null, { status: 204 }));
-
-    await sendMatomoHit(
+  it.each([
+    [
+      'root url',
       'https://analytics.example.com',
-      basePayload,
-      1000,
-      'debug',
-      fetchMock
-    );
-
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [url, options] = fetchMock.mock.calls[0] as [
-      string,
-      RequestInit & { signal: AbortSignal }
-    ];
-    expect(url).toBe(
       'https://analytics.example.com/matomo.php?idsite=1&rec=1&recMode=1&url=https%3A%2F%2Fexample.com%2Fpath%3Ffoo%3Dbar&source=Cloudflare&cdt=2024-01-01+00%3A00%3A00&ua=AgentX'
-    );
-    expect(options.method).toBe('GET');
-    expect(spies.debug).toHaveBeenCalledWith('Matomo response', {
-      status: 204
-    });
-  });
+    ],
+    [
+      'subdirectory url',
+      'https://analytics.example.com/matomo',
+      'https://analytics.example.com/matomo/matomo.php?idsite=1&rec=1&recMode=1&url=https%3A%2F%2Fexample.com%2Fpath%3Ffoo%3Dbar&source=Cloudflare&cdt=2024-01-01+00%3A00%3A00&ua=AgentX'
+    ],
+    [
+      'subdirectory url with slash',
+      'https://analytics.example.com/matomo/',
+      'https://analytics.example.com/matomo/matomo.php?idsite=1&rec=1&recMode=1&url=https%3A%2F%2Fexample.com%2Fpath%3Ffoo%3Dbar&source=Cloudflare&cdt=2024-01-01+00%3A00%3A00&ua=AgentX'
+    ],
+    [
+      'matomo.php url',
+      'https://analytics.example.com/matomo.php',
+      'https://analytics.example.com/matomo.php?idsite=1&rec=1&recMode=1&url=https%3A%2F%2Fexample.com%2Fpath%3Ffoo%3Dbar&source=Cloudflare&cdt=2024-01-01+00%3A00%3A00&ua=AgentX'
+    ]
+  ])(
+    'sends a single hit via tracking API (%s)',
+    async (_, baseUrl, expected) => {
+      const fetchMock = vi
+        .fn<
+          (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
+        >()
+        .mockResolvedValue(new Response(null, { status: 204 }));
+
+      await sendMatomoHit(baseUrl, basePayload, 1000, 'debug', fetchMock);
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      const [url, options] = fetchMock.mock.calls[0] as [
+        string,
+        RequestInit & { signal: AbortSignal }
+      ];
+      expect(url).toBe(expected);
+      expect(options.method).toBe('GET');
+      expect(spies.debug).toHaveBeenCalledWith('Matomo response', {
+        status: 204
+      });
+    }
+  );
 
   it('throws on non-ok response', async () => {
     const fetchMock = vi
