@@ -25,6 +25,8 @@ const defaultAllowlistPattern = `(?:${defaultUserAgentPatterns
   .join('|')})`;
 const defaultDocumentPattern =
   '^[^?]+\\.(?:pdf|docx?|xlsx?|pptx?|csv|json|txt|xml|epub|mobi|azw3|mp3|mp4|mpe?g|webm|mov|avi|ogg|wav|flac|zip|gz|gzip|tgz|tar|bz2|tbz|7z|rar|dmg|exe|msi|apk|jar|md5|sig)(?:\\?|$)';
+const defaultUrlExcludePattern =
+  '^[^?]+\\.(?:css|js|mjs|map|json|xml|webmanifest|manifest|png|jpe?g|gif|webp|avif|svg|ico|bmp|tiff?|woff2?|ttf|otf|eot|rss|atom|wasm|txt)(?:\\?|$)';
 
 export function getConfig(
   env: Partial<Env> & Record<string, string | undefined> = process.env
@@ -47,14 +49,22 @@ export function getConfig(
   const logLevel = (env.LOG_LEVEL || 'warn').toLowerCase() as LogLevel;
   const allowlistPattern =
     env.USER_AGENT_ALLOWLIST_REGEX || defaultAllowlistPattern;
+  const urlExcludePattern = env.URL_EXCLUDE_REGEX || defaultUrlExcludePattern;
   const documentPattern = env.DOCUMENT_REGEX || defaultDocumentPattern;
   let userAgentAllowlistRegex: RegExp | undefined;
+  let urlExcludeRegex: RegExp | undefined;
   let documentRegex: RegExp | undefined;
   try {
     userAgentAllowlistRegex = new RegExp(allowlistPattern, 'i');
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     throw new Error(`Invalid USER_AGENT_ALLOWLIST_REGEX: ${message}`);
+  }
+  try {
+    urlExcludeRegex = new RegExp(urlExcludePattern, 'i');
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`Invalid URL_EXCLUDE_REGEX: ${message}`);
   }
   try {
     documentRegex = new RegExp(documentPattern, 'i');
@@ -69,6 +79,7 @@ export function getConfig(
     matomoTimeoutMs,
     logLevel,
     userAgentAllowlistRegex,
+    urlExcludeRegex,
     documentRegex
   };
 }

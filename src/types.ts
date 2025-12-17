@@ -13,6 +13,7 @@ export interface Env {
   MATOMO_TIMEOUT_MS?: string;
   LOG_LEVEL?: LogLevel;
   USER_AGENT_ALLOWLIST_REGEX?: string;
+  URL_EXCLUDE_REGEX?: string;
   DOCUMENT_REGEX?: string;
   [key: string]: string | undefined;
 }
@@ -23,6 +24,7 @@ export interface MatomoConfig {
   matomoTimeoutMs: number;
   logLevel: LogLevel;
   userAgentAllowlistRegex?: RegExp;
+  urlExcludeRegex?: RegExp;
   documentRegex?: RegExp;
 }
 

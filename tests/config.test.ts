@@ -18,6 +18,9 @@ describe('getConfig', () => {
     expect(config.userAgentAllowlistRegex).toEqual(
       /(?:ChatGPT-User|MistralAI-User|Gemini-Deep-Research|Claude-User|Perplexity-User|Google-NotebookLM|Devin)/i
     );
+    expect(config.urlExcludeRegex).toEqual(
+      /^[^?]+\.(?:css|js|mjs|map|json|xml|webmanifest|manifest|png|jpe?g|gif|webp|avif|svg|ico|bmp|tiff?|woff2?|ttf|otf|eot|rss|atom|wasm|txt)(?:\?|$)/i
+    );
     expect(config.documentRegex).toEqual(
       /^[^?]+\.(?:pdf|docx?|xlsx?|pptx?|csv|json|txt|xml|epub|mobi|azw3|mp3|mp4|mpe?g|webm|mov|avi|ogg|wav|flac|zip|gz|gzip|tgz|tar|bz2|tbz|7z|rar|dmg|exe|msi|apk|jar|md5|sig)(?:\?|$)/i
     );
@@ -29,6 +32,7 @@ describe('getConfig', () => {
       MATOMO_TIMEOUT_MS: '8000',
       LOG_LEVEL: 'debug',
       USER_AGENT_ALLOWLIST_REGEX: 'CustomBot',
+      URL_EXCLUDE_REGEX: '\\.(?:js|css)$',
       DOCUMENT_REGEX: '\\.custom$'
     });
     expect(config).toMatchObject({
@@ -38,6 +42,7 @@ describe('getConfig', () => {
       logLevel: 'debug'
     });
     expect(config.userAgentAllowlistRegex).toEqual(/CustomBot/i);
+    expect(config.urlExcludeRegex).toEqual(/\.(?:js|css)$/i);
     expect(config.documentRegex).toEqual(/\.custom$/i);
   });
 
@@ -45,6 +50,9 @@ describe('getConfig', () => {
     expect(() =>
       getConfig({ ...baseEnv, USER_AGENT_ALLOWLIST_REGEX: '[' })
     ).toThrow(/Invalid USER_AGENT_ALLOWLIST_REGEX/);
+    expect(() => getConfig({ ...baseEnv, URL_EXCLUDE_REGEX: '[' })).toThrow(
+      /Invalid URL_EXCLUDE_REGEX/
+    );
     expect(() => getConfig({ ...baseEnv, DOCUMENT_REGEX: '[' })).toThrow(
       /Invalid DOCUMENT_REGEX/
     );

@@ -20,7 +20,7 @@ const trackRequest = async (
       new Date(Date.now() - durationMs)
     );
     if (!payload) {
-      log.debug('Tracking skipped (user agent not allowed)');
+      log.debug('Tracking skipped');
       return;
     }
     await sendMatomoHit(

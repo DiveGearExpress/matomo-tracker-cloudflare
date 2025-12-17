@@ -77,6 +77,19 @@ describe('buildMatomoPayload (Worker)', () => {
     expect(payload).toBeNull();
   });
 
+  it('returns null when url is excluded', () => {
+    const response = new Response(null, { status: 200 });
+    const payload = buildMatomoPayload(
+      new Request('https://example.com/assets/app.js?ver=1', {
+        headers: { 'user-agent': 'AgentX' }
+      }),
+      response,
+      10,
+      config
+    );
+    expect(payload).toBeNull();
+  });
+
   it('uses defaults when user agent allowlist is disabled', () => {
     const response = new Response(null, { status: 200 });
     const payload = buildMatomoPayload(

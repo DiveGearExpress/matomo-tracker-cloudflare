@@ -18,6 +18,9 @@ export function buildMatomoPayload(
   }
 
   const url = request.url;
+  if (config.urlExcludeRegex && config.urlExcludeRegex.test(url)) {
+    return null;
+  }
   const ua = request.headers.get('user-agent') || '';
   if (!isUserAgentAllowed(ua, config.userAgentAllowlistRegex)) {
     return null;

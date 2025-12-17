@@ -13,9 +13,32 @@ Cloudflare Worker (TypeScript, Node 24 tooling) that sits inline on your zone, p
 - `MATOMO_URL` (required): Base Matomo URL, e.g. `https://analytics.example.com`.
 - `MATOMO_SITE_ID` (required): Matomo site ID (integer).
 - `MATOMO_TIMEOUT_MS` (optional, default `5000`): HTTP timeout in ms for Matomo calls.
-- `DOCUMENT_REGEX` (optional): Case-insensitive regex to detect downloads; matching URLs add `download=<url>` to Matomo payloads. Defaults to common document/media/archive extensions.
+- `DOCUMENT_REGEX` (optional): Case-insensitive regex to detect downloads; matching URLs add `download=<url>` to Matomo payloads. This regex runs against the full URL (`protocol://host/path?query`) and defaults to a modern/common set of extensions:
+  - Documents: `.pdf`, `.doc`, `.docx`, `.xls`, `.xlsx`, `.ppt`, `.pptx`
+  - Data/text: `.csv`, `.json`, `.txt`, `.xml`
+  - Ebooks: `.epub`, `.mobi`, `.azw3`
+  - Media (audio/video): `.mp3`, `.mp4`, `.mpeg`, `.mpg`, `.webm`, `.mov`, `.avi`, `.ogg`, `.wav`, `.flac`
+  - Archives: `.zip`, `.gz`, `.gzip`, `.tgz`, `.tar`, `.bz2`, `.tbz`, `.7z`, `.rar`
+  - Installers/binaries: `.dmg`, `.exe`, `.msi`, `.apk`, `.jar`
+  - Hashes/signatures: `.md5`, `.sig`
+
+  Example: `^[^?]+\\.(?:pdf|zip|docx?)(?:\\?|$)`
+
 - `LOG_LEVEL` (optional, default `warn`): `silent|error|warn|info|debug`.
 - `USER_AGENT_ALLOWLIST_REGEX` (optional): Case-insensitive regex to permit user agents; non-matching entries are skipped. Defaults to an allowlist for `ChatGPT-User|MistralAI-User|Gemini-Deep-Research|Claude-User|Perplexity-User|Google-NotebookLM|Devin`.
+- `URL_EXCLUDE_REGEX` (optional): Case-insensitive regex to skip tracking for matching URLs. This regex runs against the full URL (`protocol://host/path?query`) and defaults to excluding common static assets and non-page resources:
+  - Frontend assets: `.css`, `.js`, `.mjs`
+  - Source maps: `.map`
+  - Data/config: `.json`, `.xml`, `.webmanifest`, `.manifest`
+  - Feeds: `.rss`, `.atom`
+  - WebAssembly: `.wasm`
+  - Text: `.txt`
+  - Images: `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.avif`, `.svg`, `.ico`, `.bmp`, `.tif`, `.tiff`
+  - Fonts: `.woff`, `.woff2`, `.ttf`, `.otf`, `.eot`
+
+  Example: `^[^?]+\\.(?:css|js|png)(?:\\?|$)`
+
+  Note: If a URL matches `URL_EXCLUDE_REGEX`, it is skipped even if it also matches `DOCUMENT_REGEX` (i.e. it will not be tracked as a download).
 
 Bind these as plain text environment variables in your Worker (e.g., Wrangler `vars`).
 
@@ -27,7 +50,7 @@ Wrangler bundles the TypeScript entry for you; no manual build is required for `
 
 - Install Wrangler (e.g., `npm install -g wrangler` or `npx wrangler --version` to use npx).
 - Copy `.dev.vars.example` to `.dev.vars` and set your local values (these are only for `wrangler dev --local`):
-  - `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_TIMEOUT_MS`, `LOG_LEVEL`, `USER_AGENT_ALLOWLIST_REGEX`, `DOCUMENT_REGEX`
+  - `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_TIMEOUT_MS`, `LOG_LEVEL`, `USER_AGENT_ALLOWLIST_REGEX`, `URL_EXCLUDE_REGEX`, `DOCUMENT_REGEX`
 - Start local dev (serves on http://localhost:8787 by default):
 
 ```sh
@@ -78,7 +101,7 @@ The Worker simply calls `fetch(request)` to reach your origin and separately pos
 - Receives each incoming request, proxies to origin with `fetch`, and returns the origin response.
 - Measures server time (`pf_srv` in seconds), status, and response bytes from `Content-Length` when present.
 - Builds a Matomo payload with `idsite`, `rec:1`, `recMode:1`, `url`, `source:'Cloudflare'`, `cdt` (UTC `YYYY-MM-DD HH:mm:ss`), and `ua`.
-- Detects downloads via `DOCUMENT_REGEX` and user-agent allowlist via `USER_AGENT_ALLOWLIST_REGEX`; disallowed UAs are skipped.
+- Skips tracking when `URL_EXCLUDE_REGEX` matches; detects downloads via `DOCUMENT_REGEX`; disallowed UAs are skipped by `USER_AGENT_ALLOWLIST_REGEX`.
 - Sends a single Matomo hit asynchronously via `waitUntil` to `/matomo.php` (standard tracking API) with timeout.
 
 ## Logging
