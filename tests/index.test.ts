@@ -118,13 +118,25 @@ describe('Worker fetch handler', () => {
     consoleWarn.mockRestore();
   });
 
-  it('returns 500 when config is invalid', async () => {
+  it('returns origin response when config is invalid and skips tracking', async () => {
+    const originResponse = new Response('origin', { status: 200 });
+    const fetchMock = vi.fn().mockResolvedValue(originResponse);
+    global.fetch = fetchMock as unknown as typeof fetch;
+    const sendSpy = vi
+      .spyOn(http, 'sendMatomoHit')
+      .mockResolvedValue(undefined);
+
     const response = await worker.fetch(
       new Request('https://example.com/path'),
       { MATOMO_SITE_ID: '7' } as never,
       { waitUntil }
     );
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(200);
     expect(waitUntil).not.toHaveBeenCalled();
+    expect(sendSpy).not.toHaveBeenCalled();
+    expect(consoleSpies.error).toHaveBeenCalledWith(
+      'Configuration error',
+      expect.objectContaining({ error: expect.stringContaining('MATOMO_URL') })
+    );
   });
 });

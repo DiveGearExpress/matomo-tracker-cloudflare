@@ -41,12 +41,13 @@ export default {
     env: Env,
     ctx: WorkerContext
   ): Promise<Response> {
-    let config: MatomoConfig;
+    let config: MatomoConfig | null = null;
     try {
       config = getConfig(env);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      return new Response(`Configuration error: ${message}`, { status: 500 });
+      console.error('Configuration error', { error: message });
+      return fetch(request);
     }
     const log = createLogger(config.logLevel);
     const start = Date.now();
