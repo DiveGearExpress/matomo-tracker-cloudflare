@@ -90,6 +90,41 @@ describe('buildMatomoPayload (Worker)', () => {
     expect(payload).toBeNull();
   });
 
+  it('returns null when http method is not allowlisted', () => {
+    const response = new Response(null, { status: 200 });
+    const payload = buildMatomoPayload(
+      new Request('https://example.com/path', {
+        method: 'POST',
+        headers: { 'user-agent': 'AgentX' }
+      }),
+      response,
+      10,
+      config
+    );
+    expect(payload).toBeNull();
+  });
+
+  it('tracks request when http method is allowlisted', () => {
+    const cfg = getConfig({
+      MATOMO_URL: 'https://analytics.example.com',
+      MATOMO_SITE_ID: '99',
+      HTTP_METHOD_ALLOWLIST: 'GET,POST',
+      USER_AGENT_ALLOWLIST_REGEX: '.*'
+    });
+    const response = new Response(null, { status: 200 });
+    const payload = buildMatomoPayload(
+      new Request('https://example.com/path', {
+        method: 'POST',
+        headers: { 'user-agent': 'AgentX' }
+      }),
+      response,
+      10,
+      cfg
+    );
+    expect(payload).not.toBeNull();
+    expect(payload?.url).toBe('https://example.com/path');
+  });
+
   it('uses defaults when user agent allowlist is disabled', () => {
     const response = new Response(null, { status: 200 });
     const payload = buildMatomoPayload(

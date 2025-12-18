@@ -17,6 +17,15 @@ export function buildMatomoPayload(
     throw new Error('matomoSiteId is required in config');
   }
 
+  const method = request.method.toUpperCase();
+  if (
+    Array.isArray(config.httpMethodAllowlist) &&
+    config.httpMethodAllowlist.length > 0 &&
+    !config.httpMethodAllowlist.includes(method)
+  ) {
+    return null;
+  }
+
   const url = request.url;
   if (config.urlExcludeRegex && config.urlExcludeRegex.test(url)) {
     return null;

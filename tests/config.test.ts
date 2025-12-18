@@ -13,7 +13,8 @@ describe('getConfig', () => {
       matomoUrl: baseEnv.MATOMO_URL,
       matomoSiteId: 42,
       matomoTimeoutMs: 5000,
-      logLevel: 'warn'
+      logLevel: 'warn',
+      httpMethodAllowlist: ['GET']
     });
     expect(config.userAgentAllowlistRegex).toEqual(
       /(?:ChatGPT-User|MistralAI-User|Gemini-Deep-Research|Claude-User|Perplexity-User|Google-NotebookLM|Devin)/i
@@ -31,6 +32,7 @@ describe('getConfig', () => {
       ...baseEnv,
       MATOMO_TIMEOUT_MS: '8000',
       LOG_LEVEL: 'debug',
+      HTTP_METHOD_ALLOWLIST: 'get, post',
       USER_AGENT_ALLOWLIST_REGEX: 'CustomBot',
       URL_EXCLUDE_REGEX: '\\.(?:js|css)$',
       DOCUMENT_REGEX: '\\.custom$'
@@ -39,11 +41,22 @@ describe('getConfig', () => {
       matomoUrl: baseEnv.MATOMO_URL,
       matomoSiteId: 42,
       matomoTimeoutMs: 8000,
-      logLevel: 'debug'
+      logLevel: 'debug',
+      httpMethodAllowlist: ['GET', 'POST']
     });
     expect(config.userAgentAllowlistRegex).toEqual(/CustomBot/i);
     expect(config.urlExcludeRegex).toEqual(/\.(?:js|css)$/i);
     expect(config.documentRegex).toEqual(/\.custom$/i);
+  });
+
+  it('defaults to GET when HTTP_METHOD_ALLOWLIST is empty/blank', () => {
+    expect(
+      getConfig({ ...baseEnv, HTTP_METHOD_ALLOWLIST: '' }).httpMethodAllowlist
+    ).toEqual(['GET']);
+    expect(
+      getConfig({ ...baseEnv, HTTP_METHOD_ALLOWLIST: '   ' })
+        .httpMethodAllowlist
+    ).toEqual(['GET']);
   });
 
   it('throws on invalid regex config', () => {
@@ -55,6 +68,15 @@ describe('getConfig', () => {
     );
     expect(() => getConfig({ ...baseEnv, DOCUMENT_REGEX: '[' })).toThrow(
       /Invalid DOCUMENT_REGEX/
+    );
+  });
+
+  it('throws on invalid HTTP_METHOD_ALLOWLIST', () => {
+    expect(() => getConfig({ ...baseEnv, HTTP_METHOD_ALLOWLIST: '$' })).toThrow(
+      /Invalid HTTP_METHOD_ALLOWLIST/
+    );
+    expect(() => getConfig({ ...baseEnv, HTTP_METHOD_ALLOWLIST: ',' })).toThrow(
+      /HTTP_METHOD_ALLOWLIST must include at least one method/
     );
   });
 

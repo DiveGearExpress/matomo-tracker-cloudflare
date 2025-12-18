@@ -23,6 +23,7 @@ const defaultUserAgentPatterns = [
 const defaultAllowlistPattern = `(?:${defaultUserAgentPatterns
   .map(escapeRegex)
   .join('|')})`;
+const defaultHttpMethodAllowlist = ['GET'];
 const defaultDocumentPattern =
   '^[^?]+\\.(?:pdf|docx?|xlsx?|pptx?|csv|json|txt|xml|epub|mobi|azw3|mp3|mp4|mpe?g|webm|mov|avi|ogg|wav|flac|zip|gz|gzip|tgz|tar|bz2|tbz|7z|rar|dmg|exe|msi|apk|jar|md5|sig)(?:\\?|$)';
 const defaultUrlExcludePattern =
@@ -47,6 +48,24 @@ export function getConfig(
 
   const matomoTimeoutMs = toInt(env.MATOMO_TIMEOUT_MS, 5000) ?? 5000;
   const logLevel = (env.LOG_LEVEL || 'warn').toLowerCase() as LogLevel;
+  const httpMethodAllowlist =
+    env.HTTP_METHOD_ALLOWLIST && env.HTTP_METHOD_ALLOWLIST.trim()
+      ? env.HTTP_METHOD_ALLOWLIST.split(',').map((v) => v.trim().toUpperCase())
+      : defaultHttpMethodAllowlist;
+  const normalizedHttpMethodAllowlist = Array.from(
+    new Set(httpMethodAllowlist.filter(Boolean))
+  );
+  if (normalizedHttpMethodAllowlist.length === 0) {
+    throw new Error('HTTP_METHOD_ALLOWLIST must include at least one method');
+  }
+  const invalidMethod = normalizedHttpMethodAllowlist.find(
+    (method) => !/^[A-Z]+$/.test(method)
+  );
+  if (invalidMethod) {
+    throw new Error(
+      `Invalid HTTP_METHOD_ALLOWLIST entry "${invalidMethod}" (expected letters only)`
+    );
+  }
   const allowlistPattern =
     env.USER_AGENT_ALLOWLIST_REGEX || defaultAllowlistPattern;
   const urlExcludePattern = env.URL_EXCLUDE_REGEX || defaultUrlExcludePattern;
@@ -78,6 +97,7 @@ export function getConfig(
     matomoSiteId,
     matomoTimeoutMs,
     logLevel,
+    httpMethodAllowlist: normalizedHttpMethodAllowlist,
     userAgentAllowlistRegex,
     urlExcludeRegex,
     documentRegex
