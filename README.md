@@ -13,7 +13,6 @@ Cloudflare Worker (TypeScript, Node 24 tooling) that sits inline on your zone, p
 - `MATOMO_URL` (required): Base Matomo URL, e.g. `https://analytics.example.com`.
 - `MATOMO_SITE_ID` (required): Matomo site ID (integer).
 - `MATOMO_TIMEOUT_MS` (optional, default `5000`): HTTP timeout in ms for Matomo calls.
-- `DOCUMENT_REGEX` (optional): Case-insensitive regex to detect downloads; matching URLs add `download=<url>` to Matomo payloads. Defaults to common document/media/archive extensions.
 - `HTTP_METHOD_ALLOWLIST` (optional, default `GET`): Comma-separated list of HTTP methods to track (e.g. `GET,POST`); empty/unset uses the default.
 - `DOCUMENT_REGEX` (optional): Case-insensitive regex to detect downloads; matching URLs add `download=<url>` to Matomo payloads. This regex runs against the full URL (`protocol://host/path?query`) and defaults to a modern/common set of extensions:
   - Documents: `.pdf`, `.doc`, `.docx`, `.xls`, `.xlsx`, `.ppt`, `.pptx`
