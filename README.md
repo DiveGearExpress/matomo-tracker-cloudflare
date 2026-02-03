@@ -100,7 +100,7 @@ The Worker simply calls `fetch(request)` to reach your origin and separately pos
 ## Runtime Behavior
 
 - Receives each incoming request, proxies to origin with `fetch`, and returns the origin response. If configuration is invalid, logs an error and just proxies (no tracking).
-- Measures server time (`pf_srv` in seconds), status, and response bytes from `Content-Length` when present.
+- Measures server time (`pf_srv` in milliseconds), status, and response bytes from `Content-Length` when present.
 - Builds a Matomo payload with `idsite`, `rec:1`, `recMode:1`, `url`, `source:'Cloudflare'`, `cdt` (UTC `YYYY-MM-DD HH:mm:ss`), and `ua`.
 - Skips tracking when `URL_EXCLUDE_REGEX` matches; detects downloads via `DOCUMENT_REGEX`; disallowed UAs are skipped by `USER_AGENT_ALLOWLIST_REGEX`; skips tracking when request method not in `HTTP_METHOD_ALLOWLIST`.
 - Sends a single Matomo hit asynchronously via `waitUntil` to `/matomo.php` (standard tracking API) with timeout.

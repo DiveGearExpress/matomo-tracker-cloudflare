@@ -2,8 +2,7 @@ import type { MatomoConfig, MatomoPayload } from './types.js';
 import {
   formatMatomoDateTime,
   getContentLength,
-  isUserAgentAllowed,
-  toSeconds
+  isUserAgentAllowed
 } from './utils.js';
 
 export function buildMatomoPayload(
@@ -55,7 +54,7 @@ export function buildMatomoPayload(
   }
 
   if (durationMs >= 0) {
-    payload.pf_srv = toSeconds(durationMs);
+    payload.pf_srv = Math.round(durationMs);
   }
 
   if (config.documentRegex && config.documentRegex.test(url)) {

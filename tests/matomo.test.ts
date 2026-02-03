@@ -36,7 +36,7 @@ describe('buildMatomoPayload (Worker)', () => {
       ua: 'AgentX',
       http_status: 201,
       bw_bytes: 512,
-      pf_srv: 1.234,
+      pf_srv: 1234,
       download: request.url
     });
   });
@@ -55,7 +55,7 @@ describe('buildMatomoPayload (Worker)', () => {
 
     expect(payload).not.toHaveProperty('bw_bytes');
     expect(payload).not.toHaveProperty('download');
-    expect(payload?.pf_srv).toBe(0.005);
+    expect(payload?.pf_srv).toBe(5);
     expect(payload?.cdt).toBe('2025-02-18 12:00:01');
   });
 

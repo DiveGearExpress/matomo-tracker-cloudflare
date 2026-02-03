@@ -18,8 +18,6 @@ export const formatMatomoDateTime = (date: Date): string => {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
-export const toSeconds = (ms: number): number => Number((ms / 1000).toFixed(3));
-
 export const getContentLength = (response: Response): number | undefined => {
   const header = response.headers.get('content-length');
   if (!header) return undefined;
