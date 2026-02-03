@@ -17,7 +17,7 @@ describe('getConfig', () => {
       httpMethodAllowlist: ['GET']
     });
     expect(config.userAgentAllowlistRegex).toEqual(
-      /(?:ChatGPT-User|MistralAI-User|Gemini-Deep-Research|Claude-User|Perplexity-User|Google-NotebookLM|Devin)/i
+      /(?:ChatGPT-User|MistralAI-User|Gemini-Deep-Research|Claude-User|Perplexity-User|Google-NotebookLM)/i
     );
     expect(config.urlExcludeRegex).toEqual(
       /^[^?]+\.(?:css|js|mjs|map|json|xml|webmanifest|manifest|png|jpe?g|gif|webp|avif|svg|ico|bmp|tiff?|woff2?|ttf|otf|eot|rss|atom|wasm|txt)(?:\?|$)/i

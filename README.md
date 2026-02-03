@@ -26,7 +26,7 @@ Cloudflare Worker (TypeScript, Node 24 tooling) that sits inline on your zone, p
   Example: `^[^?]+\\.(?:pdf|zip|docx?)(?:\\?|$)`
 
 - `LOG_LEVEL` (optional, default `warn`): `silent|error|warn|info|debug`.
-- `USER_AGENT_ALLOWLIST_REGEX` (optional): Case-insensitive regex to permit user agents; non-matching entries are skipped. Defaults to an allowlist for `ChatGPT-User|MistralAI-User|Gemini-Deep-Research|Claude-User|Perplexity-User|Google-NotebookLM|Devin`.
+- `USER_AGENT_ALLOWLIST_REGEX` (optional): Case-insensitive regex to permit user agents; non-matching entries are skipped. Defaults to an allowlist for `ChatGPT-User|MistralAI-User|Gemini-Deep-Research|Claude-User|Perplexity-User|Google-NotebookLM`.
 - `URL_EXCLUDE_REGEX` (optional): Case-insensitive regex to skip tracking for matching URLs. This regex runs against the full URL (`protocol://host/path?query`) and defaults to excluding common static assets and non-page resources:
   - Frontend assets: `.css`, `.js`, `.mjs`
   - Source maps: `.map`
