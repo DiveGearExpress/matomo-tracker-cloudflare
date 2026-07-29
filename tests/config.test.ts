@@ -17,7 +17,7 @@ describe('getConfig', () => {
       httpMethodAllowlist: ['GET']
     });
     expect(config.userAgentAllowlistRegex).toEqual(
-      /(?:ChatGPT-User|MistralAI-User|Gemini-Deep-Research|Claude-User|Perplexity-User|Google-NotebookLM)/i
+      /(?:ChatGPT-User|MistralAI-User|Gemini-Deep-Research|Claude-User|Perplexity-User|Google-NotebookLM|Google-GeminiNotebook)/i
     );
     expect(config.urlExcludeRegex).toEqual(
       /^[^?]+\.(?:css|js|mjs|map|json|xml|webmanifest|manifest|png|jpe?g|gif|webp|avif|svg|ico|bmp|tiff?|woff2?|ttf|otf|eot|rss|atom|wasm|txt)(?:\?|$)/i
@@ -25,6 +25,20 @@ describe('getConfig', () => {
     expect(config.documentRegex).toEqual(
       /^[^?]+\.(?:pdf|docx?|xlsx?|pptx?|csv|json|txt|xml|epub|mobi|azw3|mp3|mp4|mpe?g|webm|mov|avi|ogg|wav|flac|zip|gz|gzip|tgz|tar|bz2|tbz|7z|rar|dmg|exe|msi|apk|jar|md5|sig)(?:\?|$)/i
     );
+  });
+
+  it('allows both NotebookLM user agent tokens by default', () => {
+    const { userAgentAllowlistRegex } = getConfig({ ...baseEnv });
+    const userAgents = [
+      // current desktop and mobile agents
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 (compatible; Google-GeminiNotebook; +https://developers.google.com/crawling/docs/crawlers-fetchers/google-gemininotebook)',
+      'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36 (compatible; Google-GeminiNotebook; +https://developers.google.com/crawling/docs/crawlers-fetchers/google-gemininotebook)',
+      // former agent, supported until August 2026
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 (compatible; Google-NotebookLM; +https://developers.google.com/crawling/docs/crawlers-fetchers/google-notebooklm)'
+    ];
+    for (const userAgent of userAgents) {
+      expect(userAgentAllowlistRegex?.test(userAgent)).toBe(true);
+    }
   });
 
   it('uses optional overrides', () => {
