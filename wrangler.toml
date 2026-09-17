@@ -11,7 +11,7 @@ port = 8787
 local_protocol = "https"
 
 [vars]
-MATOMO_URL = "https://analytics.example.com"
+MATOMO_URL = "MATOMO_URL = "https://www.divegearexpress.com/matomo""
 MATOMO_SITE_ID = "1"
 MATOMO_TIMEOUT_MS = "5000"
 LOG_LEVEL = "warn"
