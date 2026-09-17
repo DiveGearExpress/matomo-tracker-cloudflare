@@ -1,7 +1,14 @@
+routes = [
+  { pattern = "www.divegearexpress.com/matomo-ai-test*", zone_name = "divegearexpress.com" }
+]
 name = "matomo-tracker-cloudflare"
 main = "dist/index.js"
 compatibility_date = "2024-12-08"
 compatibility_flags = ["nodejs_compat"]
+
+[observability.logs]
+enabled = true
+invocation_logs = true
 
 [build]
 command = "npm run build"
